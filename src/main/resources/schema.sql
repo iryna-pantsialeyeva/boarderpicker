@@ -58,13 +58,3 @@ CREATE TABLE IF NOT EXISTS sales (
     FOREIGN KEY (games_id)
     REFERENCES games (id)
     );
-
-CREATE TABLE IF NOT EXISTS wishlists (
-    users_id INT NOT NULL,
-    games_id INT NOT NULL,
-    PRIMARY KEY (users_id, games_id),
-    FOREIGN KEY (users_id)
-    REFERENCES users (id),
-    FOREIGN KEY (games_id)
-    REFERENCES games (id)
-    );
