@@ -9,14 +9,14 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name="users")
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name="USERNAME")
+    @Column(name = "USERNAME")
     private String userName;
     private String password;
     private String email;
@@ -29,13 +29,14 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "users_roles",
-    joinColumns = {@JoinColumn(name = "role_id")},
-    inverseJoinColumns = {@JoinColumn(name = "user_id")})
+            joinColumns = {@JoinColumn(name = "users_id")},
+            inverseJoinColumns = {@JoinColumn(name = "roles_id")})
     private List<Role> roles;
 
     @ManyToMany
     @JoinTable(name = "sales",
-            joinColumns = {@JoinColumn(name = "game_id")},
-            inverseJoinColumns = {@JoinColumn(name = "user_id")})
+            joinColumns = {@JoinColumn(name = "users_id")},
+            inverseJoinColumns = {@JoinColumn(name = "games_id")})
     private List<Game> games;
+
 }
