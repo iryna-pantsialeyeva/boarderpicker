@@ -20,6 +20,7 @@ public class Game {
     @Column(name = "GAMENAME")
     private String gameName;
     private String description;
+    @Column(name = "PICPATH")
     private String picPath;
 
     public Game(String gameName, String description, String picPath) {
