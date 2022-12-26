@@ -24,6 +24,6 @@ public class Category {
         this.name = name;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "category")
+    @ManyToMany(mappedBy = "categories")
     private Set<Game> games = new HashSet<>();
 }
