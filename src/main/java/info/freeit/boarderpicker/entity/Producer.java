@@ -24,6 +24,11 @@ public class Producer {
         this.name = name;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "producer")
+    @OneToMany(mappedBy = "producer")
     private Set<Game> games = new HashSet<>();
+
+    public void addGame(Game game) {
+        games.add(game);
+        game.setProducer(this);
+    }
 }

@@ -28,7 +28,7 @@ public class User {
         this.email = email;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = {@JoinColumn(name = "users_id")},
             inverseJoinColumns = {@JoinColumn(name = "roles_id")})
@@ -37,4 +37,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Sale> sales = new HashSet<>();
 
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public void addSale(Sale sale) {
+        sales.add(sale);
+        sale.setUser(this);
+    }
 }

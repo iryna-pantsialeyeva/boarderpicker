@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,13 +36,19 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "games_categories",
             joinColumns = {@JoinColumn(name = "games_id")},
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "producers_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "producers_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Producer producer;
+
+    public void addSale(Sale sale) {
+        sales.add(sale);
+        sale.setGame(this);
+    }
 }
