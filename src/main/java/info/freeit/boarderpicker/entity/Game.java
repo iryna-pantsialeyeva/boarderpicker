@@ -1,5 +1,6 @@
 package info.freeit.boarderpicker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +41,7 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "producers_id", referencedColumnName = "id")
     private Producer producer;
