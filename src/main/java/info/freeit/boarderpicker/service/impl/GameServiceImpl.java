@@ -3,7 +3,7 @@ package info.freeit.boarderpicker.service.impl;
 import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.repository.GameRepository;
 import info.freeit.boarderpicker.service.GameService;
-import info.freeit.boarderpicker.service.exception.CustomNullException;
+import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +19,32 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(game);
     }
 
-    public List<Game> getAllGames() throws CustomNullException {
+    public List<Game> getAllGames() throws GamesNotFoundException {
         List<Game> games = (List) gameRepository.findAll();
         if (games.size() != 0) {
             return games;
         } else {
-            throw new CustomNullException("There is no any games in DB!!!");
+            throw new GamesNotFoundException("There is no any games in DB!!!");
         }
     }
 
-    public void deleteGame(Game game) {
-        gameRepository.deleteById(game.getId());
+    public Game getGameById(int id) throws GamesNotFoundException {
+        return gameRepository.findById(id).orElseThrow(() -> new GamesNotFoundException("There is no game with such id!!!"));
+    }
+
+    public void updateGame(Game game) throws GamesNotFoundException {
+        Game foundGame = gameRepository.findById(game.getId()).orElseThrow(() -> new GamesNotFoundException("There is no game with such id!!!"));
+        foundGame.setId(game.getId());
+        foundGame.setGameName(game.getGameName());
+        foundGame.setDescription(game.getDescription());
+        foundGame.setPicPath(game.getPicPath());
+        foundGame.setCategories(game.getCategories());
+        foundGame.setProducer(game.getProducer());
+        foundGame.setSales(game.getSales());
+        gameRepository.save(foundGame);
+    }
+
+    public void deleteGame(int id) {
+        gameRepository.deleteById(id);
     }
 }
