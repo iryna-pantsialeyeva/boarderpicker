@@ -1,7 +1,9 @@
 package info.freeit.boarderpicker.controller;
 
 import info.freeit.boarderpicker.entity.Game;
+import info.freeit.boarderpicker.entity.Producer;
 import info.freeit.boarderpicker.service.GameService;
+import info.freeit.boarderpicker.service.ProducerService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +16,15 @@ public class GameController {
 
     @Autowired
     private GameService gameService;
+    @Autowired
+    private ProducerService producerService;
 
     @PostMapping(value = "/add")
-    public void addGame(@RequestBody List<Game> games) {
-        for(Game game : games) {
+    public void addGame(@RequestBody Game game) {
+            producerService.saveProducer(game.getProducer());
+            Producer producer = producerService.getProducerByName(game.getProducer().getName());
+            game.setProducer(producer);
             gameService.saveGame(game);
-        }
     }
 
     @GetMapping(value = "/getAll")
