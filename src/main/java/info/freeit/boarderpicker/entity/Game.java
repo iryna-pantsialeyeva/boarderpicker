@@ -35,18 +35,14 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
 
-    @ManyToMany(/*cascade = CascadeType.ALL,*/ fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "games_categories",
             joinColumns = {@JoinColumn(name = "games_id")},
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "producers_id", referencedColumnName = "id")
     private Producer producer;
-
-    public void addCategory (Category category) {
-        categories.add(category);
-    }
 }

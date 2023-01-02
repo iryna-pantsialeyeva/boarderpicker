@@ -10,7 +10,9 @@ import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/games")
@@ -25,14 +27,22 @@ public class GameController {
 
     @PostMapping(value = "/add")
     public void addGame(@RequestBody Game game) {
-        producerService.saveProducer(game.getProducer());
+        if(producerService.getProducerByName(game.getProducer().getName()) == null) {
+            producerService.saveProducer(game.getProducer());
+        }
         Producer producer = producerService.getProducerByName(game.getProducer().getName());
         game.setProducer(producer);
+
+        Set<Category> categories = new HashSet<>();
         for (Category category : game.getCategories()) {
-            categoryService.saveCategory(category);
+            if(categoryService.getCategoryByName(category.getName()) == null) {
+                categoryService.saveCategory(category);
+            }
             Category savedCategory = categoryService.getCategoryByName(category.getName());
-            game.addCategory(savedCategory);
+            categories.add(savedCategory);
         }
+        game.setCategories(categories);
+
         gameService.saveGame(game);
     }
 
