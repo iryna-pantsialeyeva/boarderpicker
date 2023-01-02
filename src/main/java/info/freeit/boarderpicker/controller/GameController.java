@@ -1,14 +1,18 @@
 package info.freeit.boarderpicker.controller;
 
+import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.entity.Producer;
+import info.freeit.boarderpicker.service.CategoryService;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.ProducerService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/games")
@@ -18,13 +22,22 @@ public class GameController {
     private GameService gameService;
     @Autowired
     private ProducerService producerService;
+    @Autowired
+    private CategoryService categoryService;
 
     @PostMapping(value = "/add")
     public void addGame(@RequestBody Game game) {
-            producerService.saveProducer(game.getProducer());
-            Producer producer = producerService.getProducerByName(game.getProducer().getName());
-            game.setProducer(producer);
-            gameService.saveGame(game);
+        producerService.saveProducer(game.getProducer());
+        Producer producer = producerService.getProducerByName(game.getProducer().getName());
+        game.setProducer(producer);
+        Set<Category> savedCategories = new HashSet<>();
+        for (Category category : game.getCategories()) {
+            categoryService.saveCategory(category);
+            Category savedCategory = categoryService.getCategoryByName(category.getName());
+            savedCategories.add(savedCategory);
+        }
+        game.setCategories(savedCategories);
+        gameService.saveGame(game);
     }
 
     @GetMapping(value = "/getAll")
@@ -47,6 +60,5 @@ public class GameController {
     public void deleteGame(@PathVariable int id) {
         gameService.deleteGame(id);
     }
-
 
 }

@@ -42,7 +42,7 @@ public class Game {
     private Set<Category> categories = new HashSet<>();
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(/*cascade = CascadeType.ALL,*/ fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "producers_id", referencedColumnName = "id")
     private Producer producer;
 }
