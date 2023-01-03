@@ -2,9 +2,10 @@ package info.freeit.boarderpicker.repository.impl;
 
 import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.repository.CustomCategoryRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 
 public class CustomCategoryRepositoryImpl implements CustomCategoryRepository {
 

@@ -7,6 +7,7 @@ import info.freeit.boarderpicker.service.CategoryService;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.ProducerService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
