@@ -1,9 +1,9 @@
 package info.freeit.boarderpicker.repository;
 
 import info.freeit.boarderpicker.entity.Sale;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SaleRepository extends CrudRepository<Sale, Integer> {
+public interface SaleRepository extends JpaRepository<Sale, Integer> {
 }
