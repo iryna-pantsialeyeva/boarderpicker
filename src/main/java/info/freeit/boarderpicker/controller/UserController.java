@@ -2,7 +2,6 @@ package info.freeit.boarderpicker.controller;
 
 import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.entity.User;
-import info.freeit.boarderpicker.exception.ObjectPersistenceException;
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,22 +28,22 @@ public class UserController {
     }
 
     @GetMapping("/{userID}")
-    public UserDTO getUserByID(@PathVariable int userID) throws ObjectPersistenceException {
+    public UserDTO getUserByID(@PathVariable int userID) {
         return userService.getUserByID(userID);
     }
 
-    @PostMapping("/save")
+    @PostMapping
     public UserDTO saveUser(@RequestBody User user) throws IllegalArgumentException {
         return userService.saveUser(user);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteUser(@RequestParam int id) throws ObjectPersistenceException {
+    @DeleteMapping
+    public void deleteUser(@RequestParam int id) {
        userService.deleteUserByID(id);
     }
 
-    @PutMapping("/update/{userID}")
-    public UserDTO updateUser(@PathVariable int userID, @RequestBody User user) throws ObjectPersistenceException {
+    @PutMapping("/{userID}")
+    public UserDTO updateUser(@PathVariable int userID, @RequestBody User user) {
         return userService.updateUser(userID, user);
     }
 }

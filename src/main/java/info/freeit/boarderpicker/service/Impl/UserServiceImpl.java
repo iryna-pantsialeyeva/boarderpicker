@@ -3,7 +3,6 @@ package info.freeit.boarderpicker.service.Impl;
 import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.entity.Role;
 import info.freeit.boarderpicker.entity.User;
-import info.freeit.boarderpicker.exception.ObjectPersistenceException;
 import info.freeit.boarderpicker.repository.RoleRepository;
 import info.freeit.boarderpicker.repository.UserRepository;
 import info.freeit.boarderpicker.service.UserService;
@@ -22,14 +21,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getAllUsers() {
-        List<User> users = Streamable.of(userRepository.findAll()).toList();
-        return users.stream().map(user -> UserDTO.fromUser(user)).toList();
+        return Streamable.of(userRepository.findAll()).stream().map(user -> UserDTO.fromUser(user)).toList();
     }
 
     @Override
-    public UserDTO getUserByID(int userID) throws ObjectPersistenceException {
+    public UserDTO getUserByID(int userID) {
         User user = userRepository.findById(userID)
-                .orElseThrow(() -> new ObjectPersistenceException(String.format("User with id %d not found", userID)));
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
         return UserDTO.fromUser(user);
     }
 
@@ -44,18 +42,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserByID(int id) throws ObjectPersistenceException {
+    public void deleteUserByID(int id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new ObjectPersistenceException(String.format("User with id %d not found", id));
+            throw new RuntimeException(String.format("User with id %d not found", id));
         }
     }
 
     @Override
-    public UserDTO updateUser(int id, User user) throws ObjectPersistenceException {
+    public UserDTO updateUser(int id, User user) {
         User userFromDB = userRepository.findById(id)
-                .orElseThrow(() -> new ObjectPersistenceException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
         userFromDB.setUserName(user.getUserName());
         userFromDB.setPassword(user.getPassword());
         userRepository.save(userFromDB);
