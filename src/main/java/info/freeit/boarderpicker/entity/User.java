@@ -1,19 +1,10 @@
 package info.freeit.boarderpicker.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,13 +27,8 @@ public class User {
         this.password = password;
         this.email = email;
     }
-    // for update of email with prohibition of email update
-    public User(String userName, String password) {
-        this.userName = userName;
-        this.password = password;
-    }
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
             joinColumns = {@JoinColumn(name = "users_id")},
             inverseJoinColumns = {@JoinColumn(name = "roles_id")})
@@ -50,4 +36,5 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<Sale> sales = new HashSet<>();
+
 }
