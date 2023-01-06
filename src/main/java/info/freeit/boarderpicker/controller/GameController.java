@@ -21,7 +21,7 @@ public class GameController {
     }
 
     @GetMapping
-    public List<Game> getGames() {
+    public List<Game> getGames() throws GamesNotFoundException {
         return gameService.getAllGames();
     }
 
