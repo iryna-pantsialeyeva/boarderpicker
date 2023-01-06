@@ -7,7 +7,6 @@ import info.freeit.boarderpicker.service.CategoryService;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.ProducerService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +25,7 @@ public class GameController {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping(value = "/add")
+    @PostMapping
     public void addGame(@RequestBody Game game) {
         if(producerService.getProducerByName(game.getProducer().getName()) == null) {
             producerService.saveProducer(game.getProducer());
@@ -47,23 +46,23 @@ public class GameController {
         gameService.saveGame(game);
     }
 
-    @GetMapping(value = "/getAll")
+    @GetMapping
     public List<Game> getGames() throws GamesNotFoundException {
         return gameService.getAllGames();
     }
 
-    @GetMapping(value = "/getById/{id}")
+    @GetMapping(value = "/{id}")
     public Game getGameById(@PathVariable int id) throws GamesNotFoundException {
         return gameService.getGameById(id);
     }
 
-    @PutMapping(value = "/update/{id}")
+    @PutMapping(value = "/{id}")
     public void updateGame(@RequestBody Game game, @PathVariable int id) throws GamesNotFoundException {
         game.setId(id);
         gameService.updateGame(game);
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/{id}")
     public void deleteGame(@PathVariable int id) {
         gameService.deleteGame(id);
     }
