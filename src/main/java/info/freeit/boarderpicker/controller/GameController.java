@@ -1,18 +1,12 @@
 package info.freeit.boarderpicker.controller;
 
-import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
-import info.freeit.boarderpicker.entity.Producer;
-import info.freeit.boarderpicker.service.CategoryService;
 import info.freeit.boarderpicker.service.GameService;
-import info.freeit.boarderpicker.service.ProducerService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/games")
@@ -20,46 +14,25 @@ public class GameController {
 
     @Autowired
     private GameService gameService;
-    @Autowired
-    private ProducerService producerService;
-    @Autowired
-    private CategoryService categoryService;
 
     @PostMapping
-    public void addGame(@RequestBody Game game) {
-        if(producerService.getProducerByName(game.getProducer().getName()) == null) {
-            producerService.saveProducer(game.getProducer());
-        }
-        Producer producer = producerService.getProducerByName(game.getProducer().getName());
-        game.setProducer(producer);
-
-        Set<Category> categories = new HashSet<>();
-        for (Category category : game.getCategories()) {
-            if(categoryService.getCategoryByName(category.getName()) == null) {
-                categoryService.saveCategory(category);
-            }
-            Category savedCategory = categoryService.getCategoryByName(category.getName());
-            categories.add(savedCategory);
-        }
-        game.setCategories(categories);
-
+    public void addGame(@RequestBody Game game) throws IllegalArgumentException {
         gameService.saveGame(game);
     }
 
     @GetMapping
-    public List<Game> getGames() throws GamesNotFoundException {
+    public List<Game> getGames() {
         return gameService.getAllGames();
     }
 
     @GetMapping(value = "/{id}")
-    public Game getGameById(@PathVariable int id) throws GamesNotFoundException {
+    public Game getGameById(@PathVariable int id) {
         return gameService.getGameById(id);
     }
 
     @PutMapping(value = "/{id}")
-    public void updateGame(@RequestBody Game game, @PathVariable int id) throws GamesNotFoundException {
-        game.setId(id);
-        gameService.updateGame(game);
+    public void updateGame(@RequestBody Game game, @PathVariable int id) {
+        gameService.updateGame(id, game);
     }
 
     @DeleteMapping(value = "/{id}")

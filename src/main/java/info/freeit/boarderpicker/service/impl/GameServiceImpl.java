@@ -1,7 +1,10 @@
-package info.freeit.boarderpicker.service.impl;
+package info.freeit.boarderpicker.service.Impl;
 
+import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
+import info.freeit.boarderpicker.repository.CategoryRepository;
 import info.freeit.boarderpicker.repository.GameRepository;
+import info.freeit.boarderpicker.repository.ProducerRepository;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +18,36 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private GameRepository gameRepository;
 
+    @Autowired
+    ProducerRepository producerRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Override
     public void saveGame(Game game) {
-        gameRepository.save(game);
+        if(gameRepository.findByGameName(game.getGameName()) != null) {
+            throw new IllegalArgumentException(String.format("Game %s already exists", game.getGameName()));
+        } else {
+            if (producerRepository.findByName(game.getProducer().getName()) == null) {
+                producerRepository.save(game.getProducer());
+            }
+            game.setProducer(producerRepository.findByName(game.getProducer().getName()));
+
+            for (Category category : game.getCategories()) {
+                if (categoryRepository.findByName(category.getName()) == null) {
+                    categoryRepository.save(category);
+                }
+                game.getCategories().add(categoryRepository.findByName(category.getName()));
+            }
+
+            gameRepository.save(game);
+        }
     }
 
+    @Override
     public List<Game> getAllGames() throws GamesNotFoundException {
-        List<Game> games = (List) gameRepository.findAll();
+        List<Game> games = gameRepository.findAll();
         if (games.size() != 0) {
             return games;
         } else {
@@ -28,13 +55,17 @@ public class GameServiceImpl implements GameService {
         }
     }
 
-    public Game getGameById(int id) throws GamesNotFoundException {
-        return gameRepository.findById(id).orElseThrow(() -> new GamesNotFoundException("There is no game with such id!!!"));
+    @Override
+    public Game getGameById(int id) {
+        return gameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("The game with id %d does not exist!!!", id)));
     }
 
-    public void updateGame(Game game) throws GamesNotFoundException {
-        Game foundGame = gameRepository.findById(game.getId()).orElseThrow(() -> new GamesNotFoundException("There is no game with such id!!!"));
-        foundGame.setId(game.getId());
+    @Override
+    public void updateGame(int id, Game game) {
+        Game foundGame = gameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("The game with id %d does not exist!!!", id)));
+        foundGame.setId(id);
         foundGame.setGameName(game.getGameName());
         foundGame.setDescription(game.getDescription());
         foundGame.setPicPath(game.getPicPath());
@@ -44,7 +75,12 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(foundGame);
     }
 
+    @Override
     public void deleteGame(int id) {
-        gameRepository.deleteById(id);
+        if(gameRepository.existsById(id)) {
+            gameRepository.deleteById(id);
+        } else {
+            throw new RuntimeException(String.format("The game with id %d does not exist!!!", id));
+        }
     }
 }
