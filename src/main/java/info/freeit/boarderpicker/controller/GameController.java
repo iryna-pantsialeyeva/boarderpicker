@@ -16,7 +16,7 @@ public class GameController {
     private GameService gameService;
 
     @PostMapping
-    public void addGame(@RequestBody Game game) throws IllegalArgumentException {
+    public void addGame(@RequestBody Game game) {
         gameService.saveGame(game);
     }
 
