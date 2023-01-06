@@ -6,7 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,14 +47,14 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "games_categories",
             joinColumns = {@JoinColumn(name = "games_id")},
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producers_id", referencedColumnName = "id")
+    @JoinColumn(name = "producers_id", referencedColumnName = "id", nullable = true)
     private Producer producer;
 }
