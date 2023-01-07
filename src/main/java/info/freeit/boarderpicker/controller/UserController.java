@@ -1,7 +1,7 @@
 package info.freeit.boarderpicker.controller;
 
 import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.entity.User;
+import info.freeit.boarderpicker.dto.UserDTOForSaveUpdate;
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,8 +19,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/")
     public List<UserDTO> getAllUsers() {
@@ -33,17 +38,17 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO saveUser(@RequestBody User user) throws IllegalArgumentException {
-        return userService.saveUser(user);
+    public UserDTO saveUser(@RequestBody UserDTOForSaveUpdate userDTO) throws IllegalArgumentException {
+        return userService.saveUser(userDTO);
     }
 
     @DeleteMapping
     public void deleteUser(@RequestParam int id) {
-       userService.deleteUserByID(id);
+        userService.deleteUserByID(id);
     }
 
     @PutMapping("/{userID}")
-    public UserDTO updateUser(@PathVariable int userID, @RequestBody User user) {
-        return userService.updateUser(userID, user);
+    public UserDTO updateUser(@PathVariable int userID, @RequestBody UserDTOForSaveUpdate userDTO) {
+        return userService.updateUser(userID, userDTO);
     }
 }
