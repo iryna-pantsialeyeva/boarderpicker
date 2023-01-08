@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Streamable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +22,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,11 +45,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO saveUser(UserDTOForSaveUpdate userDTO) throws IllegalArgumentException {
-        if (userRepository.findByUserName(userDTO.getUsername()) != null) {
+        if (userRepository.findByUserName(userDTO.getUsername()).isPresent()) {
             throw new IllegalArgumentException(String.format("User %s already exists", userDTO.getUsername()));
         }
         Role role = roleRepository.findByRole("User");
         User user = UserDTOForSaveUpdate.fromUserDTOForSaveUpdate(userDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
         user.addRole(role);
         return UserDTO.fromUser(userRepository.save(user));
@@ -65,10 +70,36 @@ public class UserServiceImpl implements UserService {
         User userFromDB = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
         userFromDB.setUserName(userDTO.getUsername());
-        userFromDB.setPassword(userDTO.getPassword());
+        userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userFromDB.setEmail(userDTO.getEmail());
         userRepository.save(userFromDB);
         return UserDTO.fromUser(userFromDB);
+    }
+
+    @Override
+    public void setAdminAuthority(int userID) {
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
+        Role role = roleRepository.findByRole("Admin");
+        if (!user.getRoles().contains(role)) {
+            user.addRole(role);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void banUser(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    public void unbanUser(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
+        user.setActive(true);
+        userRepository.save(user);
     }
 
     @Override

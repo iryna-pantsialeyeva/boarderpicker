@@ -16,4 +16,10 @@ public interface UserService extends UserDetailsService {
     void deleteUserByID(int id);
 
     UserDTO updateUser(int userID, UserDTOForSaveUpdate userDTO);
+
+    void setAdminAuthority(int userID);
+
+    void banUser(int id);
+
+    void unbanUser(int id);
 }

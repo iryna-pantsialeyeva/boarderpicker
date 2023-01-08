@@ -4,6 +4,7 @@ import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.dto.UserDTOForSaveUpdate;
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@PreAuthorize("hasAnyAuthority('User', 'Admin')")
 public class UserController {
 
     private final UserService userService;
@@ -43,6 +45,7 @@ public class UserController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAuthority('Admin')")
     public void deleteUser(@RequestParam int id) {
         userService.deleteUserByID(id);
     }
