@@ -1,13 +1,23 @@
 package info.freeit.boarderpicker.controller;
 
-import info.freeit.boarderpicker.entity.Game;
+import info.freeit.boarderpicker.dto.NewGameDto;
+import info.freeit.boarderpicker.dto.SavedGameDto;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/games")
 public class GameController {
@@ -16,23 +26,24 @@ public class GameController {
     private GameService gameService;
 
     @PostMapping
-    public void addGame(@RequestBody Game game) {
-        gameService.saveGame(game);
+    public SavedGameDto addGame(@RequestBody NewGameDto game) {
+        return gameService.saveGame(game);
     }
 
     @GetMapping
-    public List<Game> getGames() throws GamesNotFoundException {
+    public List<SavedGameDto> getGames() throws GamesNotFoundException {
         return gameService.getAllGames();
     }
 
     @GetMapping(value = "/{id}")
-    public Game getGameById(@PathVariable int id) {
+    public SavedGameDto getGameById(@PathVariable int id) {
         return gameService.getGameById(id);
     }
 
     @PutMapping(value = "/{id}")
-    public void updateGame(@RequestBody Game game, @PathVariable int id) {
-        gameService.updateGame(id, game);
+    public SavedGameDto updateGame(@RequestBody NewGameDto gameDto, @PathVariable int id) {
+        log.trace("#### check update method");
+        return gameService.updateGame(id, gameDto);
     }
 
     @DeleteMapping(value = "/{id}")

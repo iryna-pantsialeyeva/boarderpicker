@@ -1,7 +1,7 @@
 package info.freeit.boarderpicker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,14 +32,12 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "gamename")
-    private String gameName;
+    private String name;
     private String description;
-    @Column(name = "picpath")
     private String picPath;
 
-    public Game(String gameName, String description, String picPath) {
-        this.gameName = gameName;
+    public Game(String name, String description, String picPath) {
+        this.name = name;
         this.description = description;
         this.picPath = picPath;
     }
@@ -47,13 +45,13 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "games_categories",
             joinColumns = {@JoinColumn(name = "games_id")},
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "producers_id", nullable = true)
     private Producer producer;

@@ -31,4 +31,13 @@ public class Category {
 
     @ManyToMany(mappedBy = "categories")
     private Set<Game> games = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "categories: [" +
+                "id: " + id +
+                " name: " + name +
+                " gamesId: " + games.stream().iterator().next().getId() +
+                "]";
+    }
 }
