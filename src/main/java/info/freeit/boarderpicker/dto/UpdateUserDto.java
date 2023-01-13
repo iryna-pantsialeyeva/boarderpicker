@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTOForSaveUpdate {
+public class UpdateUserDto {
 
     private String username;
     private String password;
     private String email;
 
-    public static User fromUserDTOForSaveUpdate(UserDTOForSaveUpdate userDTO) {
+    public static User fromUpdateUserDTO(UpdateUserDto userDTO) {
         return User.builder()
                 .userName(userDTO.username)
                 .password(userDTO.password)

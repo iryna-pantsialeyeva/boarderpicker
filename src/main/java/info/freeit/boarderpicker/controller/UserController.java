@@ -1,10 +1,14 @@
 package info.freeit.boarderpicker.controller;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.dto.UserDTOForSaveUpdate;
+import info.freeit.boarderpicker.dto.UpdateUserDto;
+
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('Admin')")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
@@ -40,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO saveUser(@RequestBody UserDTOForSaveUpdate userDTO) throws IllegalArgumentException {
+    public UserDTO saveUser(@RequestBody UpdateUserDto userDTO) throws IllegalArgumentException {
         return userService.saveUser(userDTO);
     }
 
@@ -51,7 +56,8 @@ public class UserController {
     }
 
     @PutMapping("/{userID}")
-    public UserDTO updateUser(@PathVariable int userID, @RequestBody UserDTOForSaveUpdate userDTO) {
-        return userService.updateUser(userID, userDTO);
+    public UserDTO updateUser(@PathVariable int userID, @RequestBody UpdateUserDto userDTO,
+                              @AuthenticationPrincipal BPUserDetails user) {
+        return userService.updateUser(userID, userDTO, user);
     }
 }

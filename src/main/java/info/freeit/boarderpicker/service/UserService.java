@@ -1,7 +1,8 @@
 package info.freeit.boarderpicker.service;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.dto.UserDTOForSaveUpdate;
+import info.freeit.boarderpicker.dto.UpdateUserDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -11,11 +12,11 @@ public interface UserService extends UserDetailsService {
 
     UserDTO getUserByID(int userID);
 
-    UserDTO saveUser(UserDTOForSaveUpdate userDTO) throws IllegalArgumentException;
+    UserDTO saveUser(UpdateUserDto userDTO) throws IllegalArgumentException;
 
     void deleteUserByID(int id);
 
-    UserDTO updateUser(int userID, UserDTOForSaveUpdate userDTO);
+    UserDTO updateUser(int userID, UpdateUserDto userDTO, BPUserDetails user);
 
     void setAdminAuthority(int userID);
 

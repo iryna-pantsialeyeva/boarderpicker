@@ -37,6 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityTestFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.authorizeHttpRequests()
                 .requestMatchers(toH2Console()).permitAll()
+                .requestMatchers("/admin/**").hasAuthority("Admin")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
