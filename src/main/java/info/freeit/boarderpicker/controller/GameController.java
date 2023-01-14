@@ -42,7 +42,6 @@ public class GameController {
 
     @PutMapping(value = "/{id}")
     public SavedGameDto updateGame(@RequestBody NewGameDto gameDto, @PathVariable int id) {
-        log.trace("#### check update method");
         return gameService.updateGame(id, gameDto);
     }
 

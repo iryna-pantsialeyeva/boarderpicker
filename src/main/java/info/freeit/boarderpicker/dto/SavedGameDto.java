@@ -2,7 +2,6 @@ package info.freeit.boarderpicker.dto;
 
 import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
-import info.freeit.boarderpicker.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

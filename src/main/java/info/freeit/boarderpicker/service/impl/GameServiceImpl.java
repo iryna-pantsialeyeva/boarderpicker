@@ -66,10 +66,6 @@ public class GameServiceImpl implements GameService {
         if (games.size() != 0) {
             List<SavedGameDto> gamesDto = new ArrayList<>();
             for (Game game : games) {
-//                Set<Integer> setCategoryIds = new HashSet<>(game.getCategories().stream()
-//                        .map(category -> categoryRepository.findByName(category.getName()).getId())
-//                        .collect(Collectors.toList()));
-
                 gamesDto.add(SavedGameDto.fromGame(game));
             }
             return gamesDto;
@@ -99,11 +95,6 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException(String.format("Game %s already exists",
                     gameDto.getName()));
         } else {
-//            Game.GameBuilder gameBuilder = Game.builder()
-//                    .id(id)
-//                    .name(gameDto.getName())
-//                    .description(gameDto.getDescription())
-//                    .picPath(gameDto.getPicPath());
             foundGame.setName(gameDto.getName());
             foundGame.setDescription(gameDto.getDescription());
             foundGame.setPicPath(gameDto.getPicPath());
@@ -115,14 +106,11 @@ public class GameServiceImpl implements GameService {
                     : producerRepository.save(Producer.builder()
                     .name(gameDto.getProducerName())
                     .build());
-//            gameBuilder.producer(producer);
             foundGame.setProducer(producer);
 
             Set<Integer> categoryIds = gameDto.getCategories();
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
-//            gameBuilder.categories(categories);
             foundGame.setCategories(categories);
-            log.trace("#### check update method");
             return SavedGameDto.fromGame(gameRepository.save(foundGame));
         }
 

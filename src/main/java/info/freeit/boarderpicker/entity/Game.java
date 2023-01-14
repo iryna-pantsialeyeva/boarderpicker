@@ -36,23 +36,17 @@ public class Game {
     private String description;
     private String picPath;
 
-    public Game(String name, String description, String picPath) {
-        this.name = name;
-        this.description = description;
-        this.picPath = picPath;
-    }
-
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.REFRESH)
+    @ManyToMany
     @JoinTable(name = "games_categories",
             joinColumns = {@JoinColumn(name = "games_id")},
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "producers_id", nullable = true)
     private Producer producer;
 }

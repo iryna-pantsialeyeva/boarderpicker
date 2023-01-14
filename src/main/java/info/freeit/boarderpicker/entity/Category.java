@@ -1,5 +1,6 @@
 package info.freeit.boarderpicker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -25,10 +27,8 @@ public class Category {
     private Integer id;
     private String name;
 
-    public Category(String name) {
-        this.name = name;
-    }
-
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     @ManyToMany(mappedBy = "categories")
     private Set<Game> games = new HashSet<>();
 
@@ -37,7 +37,6 @@ public class Category {
         return "categories: [" +
                 "id: " + id +
                 " name: " + name +
-                " gamesId: " + games.stream().iterator().next().getId() +
                 "]";
     }
 }
