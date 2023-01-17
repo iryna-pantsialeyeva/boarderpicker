@@ -1,6 +1,8 @@
 package info.freeit.boarderpicker.service.Impl;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
+import info.freeit.boarderpicker.dto.UpdateUserDto;
 import info.freeit.boarderpicker.entity.Role;
 import info.freeit.boarderpicker.entity.User;
 import info.freeit.boarderpicker.repository.RoleRepository;
@@ -8,16 +10,29 @@ import info.freeit.boarderpicker.repository.UserRepository;
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Streamable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
-    UserRepository userRepository;
-    @Autowired
-    RoleRepository roleRepository;
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public List<UserDTO> getAllUsers() {
@@ -32,12 +47,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO saveUser(User user) throws IllegalArgumentException {
-        if (userRepository.findByUserName(user.getUserName()) != null) {
-            throw new IllegalArgumentException(String.format("User %s already exists", user.getUserName()));
+    public UserDTO saveUser(UpdateUserDto userDTO) throws IllegalArgumentException {
+        if (userRepository.findByUserName(userDTO.getUsername()).isPresent()) {
+            throw new IllegalArgumentException(String.format("User %s already exists", userDTO.getUsername()));
         }
         Role role = roleRepository.findByRole("User");
-        user.getRoles().add(role);
+        User user = UpdateUserDto.fromUpdateUserDTO(userDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActive(true);
+        user.addRole(role);
         return UserDTO.fromUser(userRepository.save(user));
     }
 
@@ -51,12 +69,50 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(int id, User user) {
-        User userFromDB = userRepository.findById(id)
+    public UserDTO updateUser(int userID, UpdateUserDto userDTO,
+                              BPUserDetails user) {
+        if (user.getId() != userID) {
+            throw new RuntimeException(String.format("You do not have access to update user with id %d", userID));
+        }
+            User userFromDB = userRepository.findById(userID)
+                    .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
+            userFromDB.setUserName(userDTO.getUsername());
+            userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            userFromDB.setEmail(userDTO.getEmail());
+            userRepository.save(userFromDB);
+            return UserDTO.fromUser(userFromDB);
+    }
+
+    @Override
+    public void setAdminAuthority(int userID) {
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
+        Role role = roleRepository.findByRole("Admin");
+        if (!user.getRoles().contains(role)) {
+            user.addRole(role);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void banUser(int id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
-        userFromDB.setUserName(user.getUserName());
-        userFromDB.setPassword(user.getPassword());
-        userRepository.save(userFromDB);
-        return UserDTO.fromUser(userFromDB);
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    public void unbanUser(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException(String
+                .format("User %s is not found", username)));
+        return BPUserDetails.getUserDetails(user);
     }
 }

@@ -45,7 +45,8 @@ create table users
     primary key,
     email    varchar(255) null,
     password varchar(255) null,
-    username varchar(255) null
+    username varchar(255) null,
+    active bit
 );
 
 create table sales
