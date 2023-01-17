@@ -1,9 +1,14 @@
 package info.freeit.boarderpicker.controller;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.entity.User;
+import info.freeit.boarderpicker.dto.UpdateUserDto;
+
 import info.freeit.boarderpicker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,11 +23,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@PreAuthorize("hasAnyAuthority('User', 'Admin')")
 public class UserController {
+
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('Admin')")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
@@ -33,17 +45,19 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO saveUser(@RequestBody User user) throws IllegalArgumentException {
-        return userService.saveUser(user);
+    public UserDTO saveUser(@RequestBody UpdateUserDto userDTO) throws IllegalArgumentException {
+        return userService.saveUser(userDTO);
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAuthority('Admin')")
     public void deleteUser(@RequestParam int id) {
-       userService.deleteUserByID(id);
+        userService.deleteUserByID(id);
     }
 
     @PutMapping("/{userID}")
-    public UserDTO updateUser(@PathVariable int userID, @RequestBody User user) {
-        return userService.updateUser(userID, user);
+    public UserDTO updateUser(@PathVariable int userID, @RequestBody UpdateUserDto userDTO,
+                              @AuthenticationPrincipal BPUserDetails user) {
+        return userService.updateUser(userID, userDTO, user);
     }
 }
