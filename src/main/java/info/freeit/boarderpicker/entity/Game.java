@@ -1,6 +1,7 @@
 package info.freeit.boarderpicker.entity;
 
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,26 +22,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
 @Table(name = "games")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "gamename")
-    private String gameName;
+    private String name;
     private String description;
-    @Column(name = "picpath")
     private String picPath;
-
-    public Game(String gameName, String description, String picPath) {
-        this.gameName = gameName;
-        this.description = description;
-        this.picPath = picPath;
-    }
 
     @OneToMany(mappedBy = "game")
     private Set<Sale> sales = new HashSet<>();
@@ -50,7 +45,8 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "categories_id")})
     private Set<Category> categories = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "producers_id", nullable = true)
     private Producer producer;
 }

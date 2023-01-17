@@ -1,19 +1,26 @@
 package info.freeit.boarderpicker.service;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.entity.User;
-import info.freeit.boarderpicker.exception.ObjectPersistenceException;
+import info.freeit.boarderpicker.dto.UpdateUserDto;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
     List<UserDTO> getAllUsers();
 
-    UserDTO getUserByID(int userID) throws ObjectPersistenceException;
+    UserDTO getUserByID(int userID);
 
-    UserDTO saveUser(User user) throws IllegalArgumentException;
+    UserDTO saveUser(UpdateUserDto userDTO) throws IllegalArgumentException;
 
-    void deleteUserByID(int id) throws ObjectPersistenceException;
+    void deleteUserByID(int id);
 
-    UserDTO updateUser(int userID, User user) throws ObjectPersistenceException;
+    UserDTO updateUser(int userID, UpdateUserDto userDTO, BPUserDetails user);
+
+    void setAdminAuthority(int userID);
+
+    void banUser(int id);
+
+    void unbanUser(int id);
 }

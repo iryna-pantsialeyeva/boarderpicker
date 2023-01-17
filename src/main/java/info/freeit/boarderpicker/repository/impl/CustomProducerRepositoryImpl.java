@@ -2,12 +2,10 @@ package info.freeit.boarderpicker.repository.impl;
 
 import info.freeit.boarderpicker.entity.Producer;
 import info.freeit.boarderpicker.repository.CustomProducerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import java.util.List;
 
 @Repository
 public class CustomProducerRepositoryImpl implements CustomProducerRepository {

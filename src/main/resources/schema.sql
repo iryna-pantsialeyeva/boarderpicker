@@ -17,7 +17,7 @@ create table games
     id           int auto_increment
     primary key,
     description  varchar(255) null,
-    gamename     varchar(255) null,
+    name     varchar(255) null,
     picpath      varchar(255) null,
     producers_id int          null,
     foreign key (producers_id) references producers (id)
@@ -45,7 +45,8 @@ create table users
     primary key,
     email    varchar(255) null,
     password varchar(255) null,
-    username varchar(255) null
+    username varchar(255) null,
+    active bit
 );
 
 create table sales
