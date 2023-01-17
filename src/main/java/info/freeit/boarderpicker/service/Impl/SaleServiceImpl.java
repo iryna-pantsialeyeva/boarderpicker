@@ -1,58 +1,69 @@
 package info.freeit.boarderpicker.service.Impl;
 
+import info.freeit.boarderpicker.dto.BPUserDetails;
+import info.freeit.boarderpicker.dto.SaleDto;
+import info.freeit.boarderpicker.dto.UpdateSaleDto;
 import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.entity.Sale;
 import info.freeit.boarderpicker.entity.User;
-import info.freeit.boarderpicker.exception.ObjectPersistenceException;
 import info.freeit.boarderpicker.repository.GameRepository;
 import info.freeit.boarderpicker.repository.SaleRepository;
 import info.freeit.boarderpicker.repository.UserRepository;
 import info.freeit.boarderpicker.service.SaleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
+@Transactional
 public class SaleServiceImpl implements SaleService {
 
-    @Autowired
-    private SaleRepository saleRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private GameRepository gameRepository;
+    private final SaleRepository saleRepository;
+    private final UserRepository userRepository;
+    private final GameRepository gameRepository;
 
-    @Override
-    public List<Sale> getAllSales() {
-        return saleRepository.findAll();
+    public SaleServiceImpl(SaleRepository saleRepository, UserRepository userRepository, GameRepository gameRepository) {
+        this.saleRepository = saleRepository;
+        this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     @Override
-    public List<Sale> getSalesByUser(int userID) {
-        return saleRepository.findAll().stream().filter(sale -> sale.getUser().getId() == userID).toList();
+    public List<SaleDto> getAllSales() {
+        return saleRepository.findAll().stream().map(SaleDto::fromSale).toList();
     }
 
     @Override
-    public List<Sale> getSalesByGame(int gameID) {
-        return saleRepository.findAll().stream().filter(sale -> sale.getGame().getId() == gameID).toList();
+    public List<SaleDto> getSalesByUser(int userID) {
+        return saleRepository.findAll().stream().filter(sale -> sale.getUser().getId() == userID)
+                .map(SaleDto::fromSale).toList();
     }
 
     @Override
-    public Sale getSaleByID(int id) throws ObjectPersistenceException {
-        return saleRepository.findById(id)
-                .orElseThrow(() -> new ObjectPersistenceException(String.format("Sale with id %d is not found", id)));
+    public List<SaleDto> getSalesByGame(int gameID) {
+        return saleRepository.findAll().stream().filter(sale -> sale.getGame().getId() == gameID).
+                map(SaleDto::fromSale).toList();
     }
 
     @Override
-    public Sale saveSale(Sale sale, int userID, int gameID) {
+    public SaleDto getSaleByID(int id) {
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("Sale with id %d is not found", id)));
+        return SaleDto.fromSale(sale);
+    }
+
+    @Override
+    public SaleDto saveSale(UpdateSaleDto sale, BPUserDetails user, int gameID) {
         try {
-            User user = userRepository.findById(userID).get();
+            User userFromDB = userRepository.findById(user.getId()).get();
             Game game = gameRepository.findById(gameID).get();
-            return Sale.builder()
+            Sale saleToSave = Sale.builder()
                     .price(sale.getPrice())
-                    .user(user)
                     .game(game)
+                    .user(userFromDB)
                     .build();
+            saleRepository.save(saleToSave);
+            return SaleDto.fromSale(saleToSave);
         } catch (Exception e) {
             throw new IllegalArgumentException("Something went wrong", e);
         }
@@ -68,10 +79,11 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public Sale updatePrice(Sale sale) throws ObjectPersistenceException {
-        Sale saleFromDB = saleRepository.findById(sale.getId())
-                .orElseThrow(() -> new ObjectPersistenceException(String.format("Sale with id %d is not found", sale.getId())));
+    public SaleDto updatePrice(int saleID, UpdateSaleDto sale) {
+        Sale saleFromDB = saleRepository.findById(saleID)
+                .orElseThrow(() -> new RuntimeException(String.format("Sale with id %d is not found", saleID)));
         saleFromDB.setPrice(sale.getPrice());
-        return saleRepository.save(saleFromDB);
+        saleRepository.save(saleFromDB);
+        return SaleDto.fromSale(saleFromDB);
     }
 }
