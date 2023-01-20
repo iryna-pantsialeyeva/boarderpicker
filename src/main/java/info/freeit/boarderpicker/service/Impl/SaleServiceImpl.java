@@ -5,10 +5,13 @@ import info.freeit.boarderpicker.dto.SaleDto;
 import info.freeit.boarderpicker.dto.UpdateSaleDto;
 import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.entity.Sale;
+import info.freeit.boarderpicker.entity.Subscription;
 import info.freeit.boarderpicker.entity.User;
 import info.freeit.boarderpicker.repository.GameRepository;
 import info.freeit.boarderpicker.repository.SaleRepository;
+import info.freeit.boarderpicker.repository.SubscriptionRepository;
 import info.freeit.boarderpicker.repository.UserRepository;
+import info.freeit.boarderpicker.service.NotificationService;
 import info.freeit.boarderpicker.service.SaleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +24,15 @@ public class SaleServiceImpl implements SaleService {
     private final SaleRepository saleRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final NotificationService notificationService;
+    private final SubscriptionRepository subscriptionRepository;
 
-    public SaleServiceImpl(SaleRepository saleRepository, UserRepository userRepository, GameRepository gameRepository) {
+    public SaleServiceImpl(SaleRepository saleRepository, UserRepository userRepository, GameRepository gameRepository, NotificationServiceImpl notificationService, SubscriptionRepository subscriptionRepository) {
         this.saleRepository = saleRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
+        this.notificationService = notificationService;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     @Override
@@ -63,10 +70,18 @@ public class SaleServiceImpl implements SaleService {
                     .user(userFromDB)
                     .build();
             saleRepository.save(saleToSave);
+            sendNotification(gameID);
             return SaleDto.fromSale(saleToSave);
         } catch (Exception e) {
             throw new IllegalArgumentException("Something went wrong", e);
         }
+    }
+
+    private void sendNotification(int gameID) {
+        List<Subscription> subscriptionList = subscriptionRepository.findSubscriptionsByGame_Id(gameID)
+                .stream().filter(Subscription::isActive).toList();
+        List<User> userList = subscriptionList.stream().map(Subscription::getUser).toList();
+        userList.forEach(user -> notificationService.sendNotification(user));
     }
 
     @Override
