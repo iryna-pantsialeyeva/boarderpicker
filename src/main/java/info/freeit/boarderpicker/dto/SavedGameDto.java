@@ -1,6 +1,5 @@
 package info.freeit.boarderpicker.dto;
 
-import info.freeit.boarderpicker.entity.Game;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,16 +21,4 @@ public class SavedGameDto {
     private Set<CategoryDto> categories = new HashSet<>();
     private Integer producerId;
     private String producerName;
-
-    public static SavedGameDto fromGame(Game game, Set<CategoryDto> categoryDtos) {
-        SavedGameDtoBuilder savedGameDtoBuilder = SavedGameDto.builder()
-                .id(game.getId())
-                .name(game.getName())
-                .description(game.getDescription())
-                .picPath(game.getPicPath())
-                .producerId(game.getProducer().getId())
-                .producerName(game.getProducer().getName())
-                .categories(categoryDtos);
-        return savedGameDtoBuilder.build();
-    }
 }

@@ -56,8 +56,7 @@ public class GameServiceImpl implements GameService {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
             gameBuilder.categories(categories);
 
-            return SavedGameDto.fromGame(gameRepository.save(gameBuilder.build()),
-                    modelMapper.toCategoryDto(categories));
+            return modelMapper.toSavedGameDto(gameRepository.save(gameBuilder.build()));
         }
     }
 
@@ -67,7 +66,7 @@ public class GameServiceImpl implements GameService {
         if (games.size() != 0) {
             List<SavedGameDto> gamesDto = new ArrayList<>();
             for (Game game : games) {
-                gamesDto.add(SavedGameDto.fromGame(game, modelMapper.toCategoryDto(game.getCategories())));
+                gamesDto.add(modelMapper.toSavedGameDto(game));
             }
             return gamesDto;
         } else {
@@ -81,7 +80,7 @@ public class GameServiceImpl implements GameService {
                 .orElseThrow(() ->
                         new RuntimeException(String.format("The game with id %d does not exist!!!",
                                 id)));
-        return SavedGameDto.fromGame(game, modelMapper.toCategoryDto(game.getCategories()));
+        return modelMapper.toSavedGameDto(game);
     }
 
     @Override
@@ -112,8 +111,7 @@ public class GameServiceImpl implements GameService {
             Set<Integer> categoryIds = gameDto.getCategories();
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
             foundGame.setCategories(categories);
-            return SavedGameDto.fromGame(gameRepository.save(foundGame),
-                    modelMapper.toCategoryDto(foundGame.getCategories()));
+            return modelMapper.toSavedGameDto(gameRepository.save(foundGame));
         }
     }
 
