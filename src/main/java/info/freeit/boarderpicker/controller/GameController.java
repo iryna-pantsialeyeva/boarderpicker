@@ -31,7 +31,8 @@ public class GameController {
 
     @PostMapping
     public SavedGameDto addGame(@RequestBody NewGameDto gameDto) {
-        return modelMapper.map(gameService.saveGame(modelMapper.newGameDtoToGame(gameDto)), SavedGameDto.class);
+        Game newGame = gameService.saveGame(modelMapper.map(gameDto, Game.class));
+        return modelMapper.map(newGame, SavedGameDto.class);
     }
 
     @GetMapping
