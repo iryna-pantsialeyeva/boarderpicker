@@ -9,7 +9,8 @@ create table producers
 (
     id   int auto_increment
     primary key,
-    name varchar(255) null
+    name varchar(255) null,
+    active bit
 );
 
 create table games

@@ -51,12 +51,12 @@ public class GameController {
 
     @PutMapping(value = "/{id}")
     public SavedGameDto updateGame(@RequestBody NewGameDto gameDto, @PathVariable int id) {
-        return modelMapper.map(gameService.updateGame(id, modelMapper.map(gameDto, Game.class)), SavedGameDto.class);
+        Game game = gameService.updateGame(id, modelMapper.map(gameDto, Game.class));
+        return modelMapper.map(game, SavedGameDto.class);
     }
 
     @DeleteMapping(value = "/{id}")
     public void deleteGame(@PathVariable int id) {
         gameService.deleteGame(id);
     }
-
 }

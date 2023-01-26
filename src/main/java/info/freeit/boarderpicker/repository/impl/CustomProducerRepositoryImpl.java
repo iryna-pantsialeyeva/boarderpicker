@@ -17,7 +17,7 @@ public class CustomProducerRepositoryImpl implements CustomProducerRepository {
     public Producer findByName(String name) {
         try {
             return (Producer) entityManager.createNativeQuery("SELECT p.id AS id, " +
-                            "p.name AS name, FROM producers p WHERE p.name = ?", Producer.class)
+                            "p.name AS name, p.active AS active FROM producers p WHERE p.name = ?", Producer.class)
                     .setParameter(1, name)
                     .unwrap(org.hibernate.query.Query.class).getSingleResult();
         } catch (NoResultException nre) {
