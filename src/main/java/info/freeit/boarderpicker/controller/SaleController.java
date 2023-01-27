@@ -2,9 +2,8 @@ package info.freeit.boarderpicker.controller;
 
 import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.SaleDto;
-import info.freeit.boarderpicker.dto.UpdateSaleDto;
 import info.freeit.boarderpicker.service.SaleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +19,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sales")
+@RequiredArgsConstructor
 public class SaleController {
 
     private final SaleService saleService;
-    @Autowired
-    public SaleController(SaleService saleService) {
-        this.saleService = saleService;
-    }
 
     @GetMapping
     public List<SaleDto> getAllSales() {
@@ -49,10 +45,10 @@ public class SaleController {
     }
 
     @PostMapping
-    public SaleDto saveSale(@RequestBody UpdateSaleDto sale, @AuthenticationPrincipal BPUserDetails user,
+    public SaleDto saveSale(@RequestBody double price, @AuthenticationPrincipal BPUserDetails user,
                             @RequestParam int gameID)
             throws IllegalArgumentException{
-        return saleService.saveSale(sale, user, gameID);
+        return saleService.saveSale(price, user, gameID);
     }
 
     @DeleteMapping("/{saleID}")
@@ -61,7 +57,7 @@ public class SaleController {
     }
 
     @PutMapping("/{saleID}")
-    public SaleDto updateSale(@PathVariable int saleID, @RequestBody UpdateSaleDto sale) {
-        return saleService.updatePrice(saleID, sale);
+    public SaleDto updateSale(@PathVariable int saleID, @RequestBody double price) {
+        return saleService.updatePrice(saleID, price);
     }
 }
