@@ -1,6 +1,6 @@
 package info.freeit.boarderpicker.controller.handlers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 public class AppExceptionHandler {
-    @Autowired
-    private ObjectErrorResponse userErrorResponse;
+    private final ObjectErrorResponse userErrorResponse;
 
     @ExceptionHandler
     public ResponseEntity<ObjectErrorResponse> handleNotFoundException(RuntimeException e) {
