@@ -30,14 +30,12 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public List<SaleDto> getSalesByUser(int userID) {
-        return saleRepository.findAll().stream().filter(sale -> sale.getUser().getId() == userID)
-                .map(SaleDto::fromSale).toList();
+        return saleRepository.findSalesByUserId(userID).stream().map(SaleDto::fromSale).toList();
     }
 
     @Override
     public List<SaleDto> getSalesByGame(int gameID) {
-        return saleRepository.findAll().stream().filter(sale -> sale.getGame().getId() == gameID).
-                map(SaleDto::fromSale).toList();
+        return saleRepository.findSalesByGameId(gameID).stream().map(SaleDto::fromSale).toList();
     }
 
     @Override
