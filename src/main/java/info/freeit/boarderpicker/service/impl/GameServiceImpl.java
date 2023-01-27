@@ -6,14 +6,15 @@ import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.entity.Game.GameBuilder;
 import info.freeit.boarderpicker.entity.Producer;
+import info.freeit.boarderpicker.mapper.MyModelMapper;
 import info.freeit.boarderpicker.repository.CategoryRepository;
 import info.freeit.boarderpicker.repository.GameRepository;
 import info.freeit.boarderpicker.repository.ProducerRepository;
 import info.freeit.boarderpicker.service.GameService;
 import info.freeit.boarderpicker.service.exception.GamesNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,14 +24,13 @@ import java.util.Set;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
 
-    @Autowired
-    private GameRepository gameRepository;
-    @Autowired
-    ProducerRepository producerRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
+    private final GameRepository gameRepository;
+    private final ProducerRepository producerRepository;
+    private final CategoryRepository categoryRepository;
+    private final MyModelMapper modelMapper;
 
     @Override
     public SavedGameDto saveGame(NewGameDto gameDto) {
@@ -56,7 +56,7 @@ public class GameServiceImpl implements GameService {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
             gameBuilder.categories(categories);
 
-            return SavedGameDto.fromGame(gameRepository.save(gameBuilder.build()));
+            return modelMapper.toSavedGameDto(gameRepository.save(gameBuilder.build()));
         }
     }
 
@@ -66,7 +66,7 @@ public class GameServiceImpl implements GameService {
         if (games.size() != 0) {
             List<SavedGameDto> gamesDto = new ArrayList<>();
             for (Game game : games) {
-                gamesDto.add(SavedGameDto.fromGame(game));
+                gamesDto.add(modelMapper.toSavedGameDto(game));
             }
             return gamesDto;
         } else {
@@ -80,7 +80,7 @@ public class GameServiceImpl implements GameService {
                 .orElseThrow(() ->
                         new RuntimeException(String.format("The game with id %d does not exist!!!",
                                 id)));
-        return SavedGameDto.fromGame(game);
+        return modelMapper.toSavedGameDto(game);
     }
 
     @Override
@@ -111,9 +111,8 @@ public class GameServiceImpl implements GameService {
             Set<Integer> categoryIds = gameDto.getCategories();
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
             foundGame.setCategories(categories);
-            return SavedGameDto.fromGame(gameRepository.save(foundGame));
+            return modelMapper.toSavedGameDto(gameRepository.save(foundGame));
         }
-
     }
 
     @Override
