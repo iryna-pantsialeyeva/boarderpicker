@@ -29,19 +29,18 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        return Streamable.of(userRepository.findAll()).stream().map(user -> UserDTO.fromUser(user)).toList();
+    public List<User> getAllUsers() {
+        return Streamable.of(userRepository.findAll()).toList();
     }
 
     @Override
-    public UserDTO getUserByID(int userID) {
-        User user = userRepository.findById(userID)
+    public User getUserByID(int userID) {
+        return userRepository.findById(userID)
                 .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
-        return UserDTO.fromUser(user);
     }
 
     @Override
-    public UserDTO saveUser(UpdateUserDto userDTO) throws IllegalArgumentException {
+    public User saveUser(UpdateUserDto userDTO) throws IllegalArgumentException {
         if (userRepository.findByUserName(userDTO.getUsername()).isPresent()) {
             throw new IllegalArgumentException(String.format("User %s already exists", userDTO.getUsername()));
         }
@@ -50,7 +49,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
         user.addRole(role);
-        return UserDTO.fromUser(userRepository.save(user));
+        return userRepository.save(user);
     }
 
     @Override
@@ -63,18 +62,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(int userID, UpdateUserDto userDTO,
+    public User updateUser(int userID, UpdateUserDto userDTO,
                               BPUserDetails user) {
         if (user.getId() != userID) {
             throw new RuntimeException(String.format("You do not have access to update user with id %d", userID));
         }
-            User userFromDB = userRepository.findById(userID)
-                    .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
-            userFromDB.setUserName(userDTO.getUsername());
-            userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            userFromDB.setEmail(userDTO.getEmail());
-            userRepository.save(userFromDB);
-            return UserDTO.fromUser(userFromDB);
+        User userFromDB = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
+        userFromDB.setUserName(userDTO.getUsername());
+        userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userFromDB.setEmail(userDTO.getEmail());
+        userRepository.save(userFromDB);
+        return userFromDB;
     }
 
     @Override

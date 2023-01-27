@@ -4,6 +4,7 @@ import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.dto.UpdateUserDto;
 
+import info.freeit.boarderpicker.mapper.UserMapper;
 import info.freeit.boarderpicker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,21 +29,22 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('Admin')")
     public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+        return userService.getAllUsers().stream().map(userMapper::fromUser).toList();
     }
 
     @GetMapping("/{userID}")
     public UserDTO getUserByID(@PathVariable int userID) {
-        return userService.getUserByID(userID);
+        return userMapper.fromUser(userService.getUserByID(userID));
     }
 
     @PostMapping
     public UserDTO saveUser(@RequestBody UpdateUserDto userDTO) throws IllegalArgumentException {
-        return userService.saveUser(userDTO);
+        return userMapper.fromUser(userService.saveUser(userDTO));
     }
 
     @DeleteMapping
@@ -54,6 +56,6 @@ public class UserController {
     @PutMapping("/{userID}")
     public UserDTO updateUser(@PathVariable int userID, @RequestBody UpdateUserDto userDTO,
                               @AuthenticationPrincipal BPUserDetails user) {
-        return userService.updateUser(userID, userDTO, user);
+        return userMapper.fromUser(userService.updateUser(userID, userDTO, user));
     }
 }
