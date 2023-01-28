@@ -26,10 +26,7 @@ public class Producer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-
-    public Producer(String name) {
-        this.name = name;
-    }
+    private boolean active;
 
     @OneToMany(mappedBy = "producer")
     private Set<Game> games = new HashSet<>();

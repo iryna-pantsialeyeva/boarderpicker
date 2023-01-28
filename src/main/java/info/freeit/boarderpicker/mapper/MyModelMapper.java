@@ -1,15 +1,56 @@
 package info.freeit.boarderpicker.mapper;
 
-import info.freeit.boarderpicker.dto.SavedGameDto;
+import info.freeit.boarderpicker.dto.NewGameDto;
+import info.freeit.boarderpicker.dto.NewProducerDto;
+import info.freeit.boarderpicker.entity.Category;
 import info.freeit.boarderpicker.entity.Game;
+import info.freeit.boarderpicker.entity.Producer;
+import info.freeit.boarderpicker.repository.CategoryRepository;
+import info.freeit.boarderpicker.repository.ProducerRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Condition;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-@Component
-public class MyModelMapper {
-    private final ModelMapper modelMapper = new ModelMapper();
+import java.util.HashSet;
+import java.util.Set;
 
-    public SavedGameDto toSavedGameDto(Game game) {
-        return modelMapper.map(game, SavedGameDto.class);
+@Slf4j
+@Component
+public class MyModelMapper extends ModelMapper {
+    private final CategoryRepository categoryRepository;
+    private final ProducerRepository producerRepository;
+    private Converter<Integer, Producer> producerIdToProducerConverter;
+    private Converter<Set<Integer>, Set<Category>> categoryIdToCategoryConverter;
+    private Converter<NewProducerDto, Producer> producerDtoToProducerConverter;
+
+    public MyModelMapper(CategoryRepository categoryRepository, ProducerRepository producerRepository) {
+        this.categoryRepository = categoryRepository;
+        this.producerRepository = producerRepository;
+    }
+
+    private void initConverters() {
+        producerIdToProducerConverter = ctx -> producerRepository.findById(ctx.getSource())
+                .orElseThrow(() -> new IllegalArgumentException(String.format("The producer with id %d does not exist!!!",
+                        ctx.getSource())));
+
+        categoryIdToCategoryConverter = ctx ->
+                new HashSet<>(categoryRepository.findAllById(ctx.getSource()));
+
+        producerDtoToProducerConverter = ctx -> Producer.builder().active(true).build();
+    }
+
+    @PostConstruct
+    public void mapperConfig() {
+        initConverters();
+        Condition<Integer, Producer> hasId = ctx -> ctx.getSource() != null;
+        typeMap(NewGameDto.class, Game.class)
+                .addMappings(mapper -> mapper.when(hasId)
+                        .using(producerIdToProducerConverter)
+                        .map(NewGameDto::getProducer, Game::setProducer))
+                .addMappings(mapper -> mapper.using(categoryIdToCategoryConverter)
+                        .map(NewGameDto::getCategories, Game::setCategories));
     }
 }
