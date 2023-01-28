@@ -1,7 +1,10 @@
 package info.freeit.boarderpicker.controller;
 
 import info.freeit.boarderpicker.dto.BPUserDetails;
+import info.freeit.boarderpicker.dto.NewSaleDto;
 import info.freeit.boarderpicker.dto.SaleDto;
+import info.freeit.boarderpicker.entity.Sale;
+import info.freeit.boarderpicker.mapper.MyModelMapper;
 import info.freeit.boarderpicker.service.SaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,32 +26,34 @@ import java.util.List;
 public class SaleController {
 
     private final SaleService saleService;
+    private final MyModelMapper modelMapper;
 
     @GetMapping
     public List<SaleDto> getAllSales() {
-        return saleService.getAllSales();
+        return saleService.getAllSales().stream().map(sale -> modelMapper.map(sale, SaleDto.class)).toList();
     }
 
     @GetMapping("/byUser")
     public List<SaleDto> getSalesByUser(@RequestParam int userID) {
-        return saleService.getSalesByUser(userID);
+        return saleService.getSalesByUser(userID).stream().map(sale-> modelMapper.map(sale, SaleDto.class)).toList();
     }
 
     @GetMapping("/byGame")
     public List<SaleDto> getSalesByGame(@RequestParam int gameID) {
-        return saleService.getSalesByUser(gameID);
+        return saleService.getSalesByUser(gameID).stream().map(sale-> modelMapper.map(sale, SaleDto.class)).toList();
     }
 
     @GetMapping("/byID")
     public SaleDto getSaleByID(@RequestParam int id)  {
-        return saleService.getSaleByID(id);
+        return modelMapper.map(saleService.getSaleByID(id), SaleDto.class);
     }
 
     @PostMapping
-    public SaleDto saveSale(@RequestBody double price, @AuthenticationPrincipal BPUserDetails user,
-                            @RequestParam int gameID)
+    public SaleDto saveSale(@RequestBody NewSaleDto saleDto, @AuthenticationPrincipal BPUserDetails user)
             throws IllegalArgumentException{
-        return saleService.saveSale(price, user, gameID);
+        Sale sale = modelMapper.map(saleDto, Sale.class);
+        int userId =  user.getId();
+        return modelMapper.map(saleService.saveSale(sale, userId), SaleDto.class);
     }
 
     @DeleteMapping("/{saleID}")
@@ -58,6 +63,6 @@ public class SaleController {
 
     @PutMapping("/{saleID}")
     public SaleDto updateSale(@PathVariable int saleID, @RequestBody double price) {
-        return saleService.updatePrice(saleID, price);
+        return modelMapper.map(saleService.updatePrice(saleID, price), SaleDto.class);
     }
 }
