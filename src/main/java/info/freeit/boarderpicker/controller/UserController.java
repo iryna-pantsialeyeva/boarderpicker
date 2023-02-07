@@ -5,7 +5,7 @@ import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.dto.UpdateUserDto;
 
 import info.freeit.boarderpicker.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -24,14 +24,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @PreAuthorize("hasAnyAuthority('User', 'Admin')")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('Admin')")
