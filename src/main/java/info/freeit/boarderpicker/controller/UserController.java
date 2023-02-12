@@ -4,6 +4,8 @@ import info.freeit.boarderpicker.dto.BPUserDetails;
 import info.freeit.boarderpicker.dto.UserDTO;
 import info.freeit.boarderpicker.dto.UpdateUserDto;
 
+import info.freeit.boarderpicker.entity.User;
+import info.freeit.boarderpicker.mapper.MyModelMapper;
 import info.freeit.boarderpicker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,21 +30,24 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final MyModelMapper modelMapper;
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('Admin')")
     public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+       return userService.getAllUsers()
+               .stream().map(user -> modelMapper.map(user, UserDTO.class)).toList();
     }
 
     @GetMapping("/{userID}")
     public UserDTO getUserByID(@PathVariable int userID) {
-        return userService.getUserByID(userID);
+        return modelMapper.map(userService.getUserByID(userID),UserDTO.class);
     }
 
     @PostMapping
     public UserDTO saveUser(@RequestBody UpdateUserDto userDTO) throws IllegalArgumentException {
-        return userService.saveUser(userDTO);
+    User newUser = modelMapper.map(userDTO, User.class);
+    return modelMapper.map(userService.saveUser(newUser), UserDTO.class);
     }
 
     @DeleteMapping
@@ -51,9 +56,10 @@ public class UserController {
         userService.deleteUserByID(id);
     }
 
-    @PutMapping("/{userID}")
-    public UserDTO updateUser(@PathVariable int userID, @RequestBody UpdateUserDto userDTO,
+    @PutMapping("/")
+    public UserDTO updateUser(@RequestBody UpdateUserDto userDTO,
                               @AuthenticationPrincipal BPUserDetails user) {
-        return userService.updateUser(userID, userDTO, user);
+        User updatedUser = userService.updateUser(user.getId(), modelMapper.map(userDTO, User.class));
+        return modelMapper.map(updatedUser, UserDTO.class);
     }
 }

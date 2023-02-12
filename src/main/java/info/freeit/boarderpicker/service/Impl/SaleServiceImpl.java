@@ -1,8 +1,5 @@
 package info.freeit.boarderpicker.service.Impl;
 
-import info.freeit.boarderpicker.dto.BPUserDetails;
-import info.freeit.boarderpicker.dto.SaleDto;
-import info.freeit.boarderpicker.entity.Game;
 import info.freeit.boarderpicker.entity.Sale;
 import info.freeit.boarderpicker.entity.User;
 import info.freeit.boarderpicker.repository.GameRepository;
@@ -14,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,40 +22,37 @@ public class SaleServiceImpl implements SaleService {
     private final GameRepository gameRepository;
 
     @Override
-    public List<SaleDto> getAllSales() {
-        return saleRepository.findAll().stream().map(SaleDto::fromSale).toList();
+    public List<Sale> getAllSales() {
+        return saleRepository.findAll();
     }
 
     @Override
-    public List<SaleDto> getSalesByUser(int userID) {
-        return saleRepository.findSalesByUserId(userID).stream().map(SaleDto::fromSale).toList();
+    public List<Sale> getSalesByUser(int userID) {
+        return saleRepository.findSalesByUserId(userID);
     }
 
     @Override
-    public List<SaleDto> getSalesByGame(int gameID) {
-        return saleRepository.findSalesByGameId(gameID).stream().map(SaleDto::fromSale).toList();
+    public List<Sale> getSalesByGame(int gameID) {
+        return saleRepository.findSalesByGameId(gameID);
     }
 
     @Override
-    public SaleDto getSaleByID(int id) {
-        Sale sale = saleRepository.findById(id)
+    public Sale getSaleByID(int id) {
+        return saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(String.format("Sale with id %d is not found", id)));
-        return SaleDto.fromSale(sale);
     }
 
     @Override
-    public SaleDto saveSale(double price, BPUserDetails user, int gameID) {
+    public Sale saveSale(Sale sale, int userId) {
         try {
-            User userFromDB = userRepository.findById(user.getId())
+            User userFromDB = userRepository.findById(userId)
                     .orElseThrow(RuntimeException::new);
-            Game game = gameRepository.findById(gameID).orElseThrow(RuntimeException::new);
             Sale saleToSave = Sale.builder()
-                    .price(price)
-                    .game(game)
+                    .price(sale.getPrice())
+                    .game(sale.getGame())
                     .user(userFromDB)
                     .build();
-            saleRepository.save(saleToSave);
-            return SaleDto.fromSale(saleToSave);
+            return saleRepository.save(saleToSave);
         } catch (Exception e) {
             throw new IllegalArgumentException("Something went wrong", e);
         }
@@ -65,7 +60,7 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public void deleteSale(int saleID) {
-        if(saleRepository.existsById(saleID)) {
+        if (saleRepository.existsById(saleID)) {
             saleRepository.deleteById(saleID);
         } else {
             throw new IllegalArgumentException(String.format("Sale with id %d is nor found", saleID));
@@ -73,11 +68,10 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public SaleDto updatePrice(int saleID, double price) {
+    public Sale updatePrice(int saleID, double price) {
         Sale saleFromDB = saleRepository.findById(saleID)
                 .orElseThrow(() -> new RuntimeException(String.format("Sale with id %d is not found", saleID)));
         saleFromDB.setPrice(price);
-        saleRepository.save(saleFromDB);
-        return SaleDto.fromSale(saleFromDB);
+        return saleRepository.save(saleFromDB);
     }
 }

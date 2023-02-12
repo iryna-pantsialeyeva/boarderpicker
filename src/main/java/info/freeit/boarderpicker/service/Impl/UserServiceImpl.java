@@ -1,8 +1,6 @@
 package info.freeit.boarderpicker.service.Impl;
 
 import info.freeit.boarderpicker.dto.BPUserDetails;
-import info.freeit.boarderpicker.dto.UserDTO;
-import info.freeit.boarderpicker.dto.UpdateUserDto;
 import info.freeit.boarderpicker.entity.Role;
 import info.freeit.boarderpicker.entity.User;
 import info.freeit.boarderpicker.repository.RoleRepository;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -29,28 +28,27 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        return Streamable.of(userRepository.findAll()).stream().map(user -> UserDTO.fromUser(user)).toList();
+    public List<User> getAllUsers() {
+        return Streamable.of(userRepository.findAll()).toList();
     }
 
     @Override
-    public UserDTO getUserByID(int userID) {
-        User user = userRepository.findById(userID)
+    public User getUserByID(int userID) {
+        return userRepository.findById(userID)
                 .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
-        return UserDTO.fromUser(user);
     }
 
     @Override
-    public UserDTO saveUser(UpdateUserDto userDTO) throws IllegalArgumentException {
-        if (userRepository.findByUserName(userDTO.getUsername()).isPresent()) {
-            throw new IllegalArgumentException(String.format("User %s already exists", userDTO.getUsername()));
+    public User saveUser(User user) throws IllegalArgumentException {
+        if (userRepository.findByUserName(user.getUserName()).isPresent()) {
+            throw new IllegalArgumentException(String.format("User %s already exists", user.getUserName()));
         }
         Role role = roleRepository.findByRole("User");
-        User user = UpdateUserDto.fromUpdateUserDTO(userDTO);
+        Set<Role> roles = user.getRoles();
+        roles.add(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
-        user.addRole(role);
-        return UserDTO.fromUser(userRepository.save(user));
+        return userRepository.save(user);
     }
 
     @Override
@@ -63,18 +61,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(int userID, UpdateUserDto userDTO,
-                              BPUserDetails user) {
-        if (user.getId() != userID) {
-            throw new RuntimeException(String.format("You do not have access to update user with id %d", userID));
-        }
-            User userFromDB = userRepository.findById(userID)
-                    .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
-            userFromDB.setUserName(userDTO.getUsername());
-            userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            userFromDB.setEmail(userDTO.getEmail());
-            userRepository.save(userFromDB);
-            return UserDTO.fromUser(userFromDB);
+    public User updateUser(int id, User user) {
+        User userFromDB = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", id)));
+        userFromDB.setUserName(user.getUserName());
+        userFromDB.setPassword(passwordEncoder.encode(user.getPassword()));
+        userFromDB.setEmail(user.getEmail());
+        userRepository.save(userFromDB);
+        return userFromDB;
     }
 
     @Override
@@ -82,8 +76,9 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userID)
                 .orElseThrow(() -> new RuntimeException(String.format("User with id %d not found", userID)));
         Role role = roleRepository.findByRole("Admin");
-        if (!user.getRoles().contains(role)) {
-            user.addRole(role);
+        Set<Role> roles = user.getRoles();
+        if (!roles.contains(role)) {
+            roles.add(role);
             userRepository.save(user);
         }
     }
