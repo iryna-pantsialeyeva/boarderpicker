@@ -56,7 +56,7 @@ public class UserController {
         userService.deleteUserByID(id);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/")
     public UserDTO updateUser(@RequestBody UpdateUserDto userDTO,
                               @AuthenticationPrincipal BPUserDetails user) {
         User updatedUser = userService.updateUser(user.getId(), modelMapper.map(userDTO, User.class));
