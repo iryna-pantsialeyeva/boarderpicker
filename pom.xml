@@ -64,7 +64,7 @@
 			<optional>true</optional>
 		</dependency>
     
-<!--		swagger - springdoc-->
+		<!--		swagger - springdoc-->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
@@ -75,6 +75,14 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>8.0.0.Final</version>
 		</dependency>
+
+		<!--          Kafka           -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+
 
 	</dependencies>
 
